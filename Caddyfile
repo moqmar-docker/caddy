@@ -1,0 +1,4 @@
+http:// {
+    root /data/public
+    gzip
+}
