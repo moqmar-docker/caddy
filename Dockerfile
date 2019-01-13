@@ -1,12 +1,12 @@
-FROM alpine
-LABEL maintainer="contact-docker@mo-mar.de"
+FROM alpine:latest
 
 ADD Caddyfile /data/Caddyfile
 
-RUN apk add --no-cache git jq go musl-dev libcap &&\
+RUN apk add --no-cache git jq go musl-dev libcap ca-certificates &&\
     wget -qO- https://gist.githubusercontent.com/moqmar/ba77bd778e6ebc956eaa36388be3fcdd/raw | sh -s http.realip http.ipfilter http.cors http.expires http.ratelimit &&\
     setcap 'cap_net_bind_service=+ep' /usr/local/bin/caddy && mkdir -p /caddy/public && chmod 777 /caddy /caddy/public &&\
-    apk del git jq go musl-dev libcap
+    apk del git jq go musl-dev libcap && rm -rf /tmp/caddy-build &&\
+    mkdir /data/public && chown 1000 /data/public
 
 ADD smell-baron /
 
