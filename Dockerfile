@@ -35,7 +35,7 @@ FROM scratch
 COPY --from=build /build /
 RUN ["/bin/busybox", "chown", "-R", "1000:1000", "/data"]
 RUN ["/bin/setcap", "cap_net_bind_service=ep", "/bin/caddy"]
-RUN ["/bin/busybox", "rm", "-rf", "/data/caddy/.gitkeep" "/bin/setcap", "/bin/busybox", "/lib"]
+RUN ["/bin/busybox", "rm", "-rf", "/data/caddy/.gitkeep", "/bin/setcap", "/bin/busybox", "/lib"]
 
 WORKDIR /data
 USER 1000

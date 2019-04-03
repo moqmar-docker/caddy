@@ -33,7 +33,7 @@ docker run --rm -v "$PWD/public:/data/public:ro" -v "$PWD/Caddyfile:/data/Caddyf
 ## Using custom plugins
 The default image from the Docker Hub comes without any plugins. To add plugins (in this example, `http.expires` and `http.ratelimit`), you need to build your own version of this image:
 ```bash
-git clone github.com/moqmar-docker/caddy && cd caddy
+git clone https://github.com/moqmar-docker/caddy.git && cd caddy
 CADDY_PLUGINS=""
 CADDY_PLUGINS="$PLUGINS github.com/epicagency/caddy-expires"
 CADDY_PLUGINS="$PLUGINS github.com/xuqingfeng/caddy-rate-limit"
