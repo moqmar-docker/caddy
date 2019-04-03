@@ -1,18 +1,17 @@
-# [Caddy](https://caddyserver.com) Docker Container
+# The smallest possible [Caddy](https://caddyserver.com) image
 
-This container comes with Alpine (to make it small) and the Apache-licensed version from GitHub.
+This is a from scratch container with the Apache-licensed version of the [Caddy](https://caddyserver.com) web server from the latest GitHub tag.
 
-**Installed plugins:** `http.realip`, `http.ipfilter`, `http.cors`, `http.expires`, `http.ratelimit`
+By default, it uses the UID `1000`, so everything must be readable by that user. When using TLS with ACME, `/data/caddy` must also be writable by that user.
 
 **Web root:** `/data/public`  
-This is just for a quick start, you'll probably replace the Caddyfile anyways. But to just start a webserver (e.g. on http://127.0.0.1:1234/) that serves the current directory, you can use the following command:
-```
-docker run --rm -v $PWD:/data/public -p 1234:80 momar/caddy
+To just start a webserver (e.g. on http://127.0.0.1:1234/) that serves the current directory, you can use the following command:
+```bash
+docker run --rm -v "$PWD:/data/public:ro" -p 1234:80 momar/caddy
 ```
 
 **Caddyfile:** `/data/Caddyfile`  
-When using the container for production/deployment, you should use a single volume at `/data` containing both the data and the Caddyfile, with either `internal /Caddyfile` or a subdirectory for publicly available resources.  
-The default Caddyfile is just the following:
+The default Caddyfile contains just the following:
 ```
 http:// {
     root /data/public
@@ -20,5 +19,29 @@ http:// {
 }
 ```
 
-**CADDYPATH:** `/caddy`  
-SSL certs are stored here, so if you use SSL you probably want to mount this as a volume.
+If you want to use a custom Caddyfile, you should mount it directly as a file:
+```bash
+docker run --rm -v "$PWD/public:/data/public:ro" -v "$PWD/Caddyfile:/data/Caddyfile:ro" -p 80:80 momar/caddy
+```
+
+**CADDYPATH:** `/data/caddy`  
+SSL certs are stored here, so if you use SSL you probably want to mount this as a volume, too:
+```bash
+docker run --rm -v "$PWD/public:/data/public:ro" -v "$PWD/Caddyfile:/data/Caddyfile:ro" -v "$PWD/caddy:/data/caddy" -p 80:80 -p 443:443 momar/caddy
+```
+
+## Using custom plugins
+The default image from the Docker Hub comes without any plugins. To add plugins (in this example, `http.expires` and `http.ratelimit`), you need to build your own version of this image:
+```bash
+git clone github.com/moqmar-docker/caddy && cd caddy
+CADDY_PLUGINS=""
+CADDY_PLUGINS="$PLUGINS github.com/epicagency/caddy-expires"
+CADDY_PLUGINS="$PLUGINS github.com/xuqingfeng/caddy-rate-limit"
+docker build -t momar/caddy:custom
+docker run --rm -v "/var/www:/data/public:ro" -p 1234:80 momar/caddy:custom
+```
+
+To get the import paths of the plugins listed on the [Caddy website](https://caddyserver.com/download), you can use [`jq`](https://stedolan.github.io/jq/):
+```bash
+curl https://caddyserver.com/api/download-page | jq -c '.plugins[] | { name: .Name, import: .ImportPath }'
+```

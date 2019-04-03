@@ -1,2 +1,0 @@
-run build the docker container: docker build --force-rm "$@" --tag momar/caddy .
-test: docker run --rm -it momar/caddy "$@"
