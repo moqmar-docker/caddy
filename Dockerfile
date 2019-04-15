@@ -43,4 +43,4 @@ ENV ZONEINFO=/etc/zoneinfo.zip PATH=/bin CADDYPATH=/data/caddy
 EXPOSE 80
 EXPOSE 443
 
-CMD ["/bin/caddy", "-agree=true", "-conf=/data/Caddyfile", "-log=stdout", "-email=", "-grace=2s"]
+CMD ["/bin/caddy", "-agree=true", "-conf=/data/Caddyfile", "-log=stdout", "-email", "noreply@example.org", "-grace=2s"]
