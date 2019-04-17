@@ -2,22 +2,19 @@ FROM golang:1-alpine AS build
 
 
 # Step 1: Checkout
-RUN apk add --no-cache git tzdata zip ca-certificates libcap && go get github.com/mholt/caddy/caddy/caddymain
-WORKDIR /go/src/github.com/mholt/caddy/caddy
+RUN apk add --no-cache git tzdata zip ca-certificates libcap &&\
+    git clone https://github.com/mholt/caddy.git /data
+WORKDIR /data
 RUN tag=$(git describe --abbrev=0 --tags) && echo -e "Latest tagged version: $tag" && git -c advice.detachedHead=false checkout "$tag"
 
-
 # Step 2: Disable Telemetry (the telemetry server somehow always replies 403, so this removes some annoying log messages)
-RUN sed -i 's|var EnableTelemetry = true|var EnableTelemetry = false|' caddymain/run.go
-
+RUN sed -i 's|var EnableTelemetry = true|var EnableTelemetry = false|' caddy/caddymain/run.go
 
 # Step 2: Add plugins
-RUN for plugin in ${CADDY_PLUGINS}; do sed -i 's|// This is where other plugins get plugged in (imported)|\0\n\t_ "'"$plugin"'"|' caddymain/run.go; done
-RUN go get github.com/mholt/caddy/caddy/caddymain
-
+RUN for plugin in ${CADDY_PLUGINS}; do sed -i 's|// This is where other plugins get plugged in (imported)|\0\n\t_ "'"$plugin"'"|' caddy/caddymain/run.go; done
 
 # Step 3: Build
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static" -s -w' -o /go/bin/caddy github.com/mholt/caddy/caddy
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static" -s -w' -o /go/bin/caddy ./caddy
 
 
 # Step 4: Create file structure for empty container
