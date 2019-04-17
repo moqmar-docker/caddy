@@ -2,7 +2,7 @@ FROM golang:1-alpine AS build
 
 
 # Step 1: Checkout
-RUN apk add --no-cache git tzdata zip ca-certificates libcap && go get github.com/mholt/caddy/caddy
+RUN apk add --no-cache git tzdata zip ca-certificates libcap && go get github.com/mholt/caddy/caddy/caddymain
 WORKDIR /go/src/github.com/mholt/caddy/caddy
 RUN tag=$(git describe --abbrev=0 --tags) && echo -e "Latest tagged version: $tag" && git -c advice.detachedHead=false checkout "$tag"
 
